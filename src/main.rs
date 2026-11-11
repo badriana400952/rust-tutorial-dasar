@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 fn main() {
     // print!("Hello, world!");
     // println!("badriana")
@@ -390,22 +392,20 @@ fn loop_return_value() {
         }
     };
     println!("{:?}", result)
-
 }
-
 
 // loop label untuk loop dalam loop
 #[test]
 fn loop_label() {
     let mut number = 1;
     'nama: loop {
-        let mut i =1; 
+        let mut i = 1;
         loop {
             if number > 10 {
                 break 'nama;
             }
-            println!("{} x {} = {}", number, i, number*1);
-            i+=1;
+            println!("{} x {} = {}", number, i, number * 1);
+            i += 1;
             if i > 10 {
                 break;
             }
@@ -415,15 +415,162 @@ fn loop_label() {
 }
 
 #[test]
-// berbeda dengan id dan loop while dijalankan selama dia true dan melakukan lebih dari satu eksekusi 
+// berbeda dengan id dan loop while dijalankan selama dia true dan melakukan lebih dari satu eksekusi
 //jika if hanya sekali jika while berkali kali
 fn while_loop() {
     let mut angka = 0;
     while angka < 10 {
         if angka % 2 == 0 {
             println!("{}", angka);
-            
         }
         angka += 1
     }
+}
+
+#[test]
+fn while_loops() {
+    let mut counter = 0;
+    while counter <= 10 {
+        println!("ini {}", counter);
+        if counter == 5 {
+            println!("{}", counter)
+        }
+        counter += 1
+    }
+}
+
+// literasi array
+// pengulangan array menggunakan while loop
+#[test]
+fn array_literation_loop() {
+    let arrays = ["a", "b", "c", "d", "e", "f"];
+    let mut index = 0;
+    while index < arrays.len() {
+        println!("{}", arrays[index]);
+        index += 1
+    }
+}
+//pengulangan menggunakan for loop
+//rust menyediakan cara yang lebuh mudah untuk melakukan pengambilan data darri array menggunakan loop
+#[test]
+fn array_literation_loop_for() {
+    let arrays = ["a", "b", "c", "d", "e", "f"];
+    for values in arrays {
+        println!("value: {}", values)
+    }
+}
+
+//range
+//rust memiliki tipe data bernama range
+//range adalah jarak antara start dan end
+//range merupakan tipe data collection seperti array sehingga bisa di lakukan pengulangan menggunakan for
+//data rang akan di mulai dari start dan di akhiri sebelum end
+//https://doc.rust-lang.org/stable/std/ops/struct.Range.html
+#[test]
+fn range() {
+    let arrays = ["a", "b", "c", "d", "e", "f"];
+    let range = 0..5;
+    // println!("range.start {}", range.start);
+    // println!("range.end {}", range.end);
+    // println!("{:?}", arrays);
+    for index in range {
+        println!(" ini hasil range {}", arrays[index])
+    }
+}
+
+fn say_hello() {
+    println!("hallo badriana");
+}
+#[test]
+fn panggil_say_hello() {
+    say_hello();
+    say_hello();
+    say_hello();
+}
+
+// function ownership
+//jika dia stack maka akan di copy
+//jika dia heap maka akan di pindahkan dan di hapus
+fn hai_number(number: i32) {
+    //number bersifat stak karena dia type data fixsize atau data statis
+    println!("{}", number) //10
+}
+fn hai_string(name: String) {
+    //string bersipat heap karena dia bisa bertambah atau berkurang datanya.
+    println!("{}", name)
+}
+#[test]
+fn tes_hai() {
+    // stack
+    let num = 10;
+    hai_number(num); //copy data num 10 lalu di kirim ke fn hai_number()
+    println!("{}", num); //num tetap 10
+    // heap
+    let name = String::from("hai badri");
+    hai_string(name); //memindahkan name ke hai_string()
+    //jika ingin tetap menggunakan maka gunakan clone
+    // println!("{}", name) // error borrow of moved value: `name` : peminjaman nilai yang di pindahkan
+    // hai_string(name.clone())
+}
+// return function
+// jika value heap yang kita kembalikan di function, secara otomatis ownership nya akan di miliki oleh yang memanggil function tersebut
+//jika dia stack maka return value function akan di copy opeh yang memanggil nya
+
+fn full_name(name1: String, name2: String) -> String {
+    format!("{} {}", name1, name2)
+}
+#[test]
+fn test_full_name() {
+    let nama_depan = String::from("adrian");
+    let nama_belakang = String::from("dirgantara");
+
+    let nama_lengkap = full_name(nama_depan, nama_belakang);
+    println!("{}", nama_lengkap);
+    //ketika kita memnaggil nama lagi setelah digunakan di fungsi maka variabel tersebut tidak bisa lagi digunakan
+    //karena value adrian dan dirgantara di pindahkan ke fungsi full_name sebagai nilai parameter
+    //dan variabel nama_depan dan variabel nama_belakang itu di hapus
+    //jika di uncomment maka println!("{}", nama_depan) dan println!("{}", nama_belakang) akan error jika di gunakan kembali
+    // println!("{}", nama_depan);
+    // println!("{}", nama_belakang);
+}
+
+//mengembalikan ownershift
+fn full_names(nama_depan: String, nama_belakang: String) -> (String, String, String) {
+    let nama_lengkap = format!("{} {}", nama_depan, nama_belakang);
+    (nama_depan, nama_belakang, nama_lengkap)
+}
+#[test]
+fn tes_full_names() {
+    let nama_depans = String::from("adrian");
+    let nama_belakangs = String::from("dirgantara");
+    let (nama_depan, nama_belakang, nama) = full_names(nama_depans, nama_belakangs);
+
+    println!("{}", nama);
+    println!("{}", nama_depan);
+    println!("{}", nama_belakang);
+}
+
+// membuat referensi dari string untuk data heap
+fn referens_full_names(nama_depan: &String, nama_belakang: &String) -> String {
+    format!("{} {}", nama_depan, nama_belakang)
+}
+#[test] 
+fn referens_tes_full_name() {
+    let nama_depan = String::from("adrian");
+    let nama_belakang = String::from("dirgantara");
+    let nama_lengkap = referens_full_names(&nama_depan, &nama_belakang);
+    println!("{}", nama_lengkap);
+    println!("{}", nama_depan);
+    println!("{}", nama_belakang);
+}
+// hanya saja value reverense itu tidak boleh di ubah . atau bersiat immutable meskipun variable pemiliknya mutable
+fn ubah_value(nama: &String) {
+    // nama.push_str("dirgantara"); // error `nama` adalah referensi `&`, jadi tidak dapat dipinjam sebagai mutable.
+    print!("{}", nama)
+}
+#[test]
+fn tes_ubah_value() {
+    let nama = String::from("adrian");
+    ubah_value(&nama);
+    print!("{}", nama)
 }
