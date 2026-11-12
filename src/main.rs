@@ -1,4 +1,4 @@
-use std::fmt::format;
+use core::num;
 
 fn main() {
     // print!("Hello, world!");
@@ -554,7 +554,7 @@ fn tes_full_names() {
 fn referens_full_names(nama_depan: &String, nama_belakang: &String) -> String {
     format!("{} {}", nama_depan, nama_belakang)
 }
-#[test] 
+#[test]
 fn referens_tes_full_name() {
     let nama_depan = String::from("adrian");
     let nama_belakang = String::from("dirgantara");
@@ -573,4 +573,259 @@ fn tes_ubah_value() {
     let nama = String::from("adrian");
     ubah_value(&nama);
     print!("{}", nama)
+}
+//slice adalah reference ke sebagian daei data collection (misal array)
+//karena slice adalah reference dia tidak punya ownership
+// contoh misal kita punya array dengan total data 10, kita mau ambil 5 data terdepan. maka kita bisa membuat slice sebagai reference data dari data ke 1 dampai ke 5
+#[test]
+// &array[..] di gunakan untuk mmengambil array
+// [..] ambil semua
+// [0..5] ambil dari imdex 0 sampai ke index 5
+// [5..] ambil dari imdex 5 sampay array terakhir
+//array slice
+fn slice_reference() {
+    let array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let slice1 = &array[..];
+    println!("{:?}", slice1);
+
+    let slice2 = &array[0..5];
+    println!("{:?}", slice2);
+
+    let slice3 = &array[5..];
+    println!("{:?}", slice3)
+    //SEMUA REFERENSE ITU DATANYA DI COPY karena dia FIXSIZE
+}
+
+// string slice
+#[test]
+fn string_slice() {
+    let nama = String::from("adrin dirgantara");
+    let nama0 = &nama[..]; //ambil semua string
+    println!("{}", nama0);
+    let nama1 = &nama[0..5]; //ambil 0 sampai index 5
+    println!("{}", nama1);
+    let nama2 = &nama[5..]; //ambil indek ke 5 dampei akhir
+    println!("{}", nama2)
+}
+
+// structs
+//struct adalah tipe data mirip ruple yang bisa di gunakan untuk menampung beberapa tipe data yang berbeda
+//struct digunakan untuk membuat interfece
+
+struct UserStruct {
+    nama_depan: String,
+    nama_belakang: String,
+    nama_lengkap: String,
+    umur: u8,
+}
+#[test]
+fn test_struct() {
+    let users: UserStruct = UserStruct {
+        nama_depan: String::from("adrian"),
+        nama_belakang: String::from("dirgantara"),
+        nama_lengkap: String::from("adrian dirhantara"),
+        umur: 2,
+    };
+    println!("{}", users.nama_depan);
+    println!("{}", users.nama_belakang);
+    println!("{}", users.nama_lengkap);
+    println!("{}", users.umur);
+}
+//jika ingin merubah object
+//uodate struct
+#[test]
+fn test_struct_mut() {
+    let mut users: UserStruct = UserStruct {
+        nama_depan: String::from("adrian"),
+        nama_belakang: String::from("dirgantara"),
+        nama_lengkap: String::from("adrian dirhantara"),
+        umur: 2,
+    };
+    users.umur = 50;
+    println!("{}", users.nama_depan);
+    println!("{}", users.nama_belakang);
+    println!("{}", users.nama_lengkap);
+    println!("{}", users.umur);
+
+    let users2: UserStruct = UserStruct { ..users };
+    println!("{}", users2.nama_depan);
+    println!("{}", users2.nama_belakang);
+    println!("{}", users2.nama_lengkap);
+    println!("{}", users2.umur);
+}
+//memasukan struct sebagai fungsi parameter
+fn cetak_user(users: &UserStruct) {
+    println!("{}", users.nama_lengkap);
+    println!("{}", users.nama_depan);
+    println!("{}", users.nama_belakang);
+    println!("{}", users.umur);
+}
+#[test]
+fn panggil_fungsi_cetak_user() {
+    let data_user: UserStruct = UserStruct {
+        nama_depan: String::from("dede"),
+        nama_belakang: String::from("badriana"),
+        nama_lengkap: String::from("dede badriana"),
+        umur: 25,
+    };
+    cetak_user(&data_user);
+}
+
+//inti shorthand
+//kadang kita ingin membuat value untuk filed di steuce dari variable yang sudah ada
+//jika misalnya nama variable sama dengan field kita tidak perlu menyebutkan secara explisit
+#[test]
+fn init_shorthand() {
+    let nama = String::from("adrian");
+    let nama_lengkap = String::from("adrian dirgantara");
+
+    let users: UserStruct = UserStruct {
+        nama_depan: nama, //explisit
+        nama_belakang: String::from("adrian dirgantara"),
+        nama_lengkap, //no explisit
+        umur: 15,
+    };
+    println!("{}", users.nama_lengkap);
+    println!("{}", users.nama_depan);
+    println!("{}", users.nama_belakang);
+    println!("{}", users.umur);
+    //  println!("{}", nama) //error karena kepemilikan variable sudah di pindahkan ke nama_depan
+}
+
+// membuat struct tuple
+struct KumpulanUmur(i32, i128, i128, String, bool);
+#[test]
+fn struct_tuple() {
+    let kumpulan_umur = KumpulanUmur(10, 20, 30, String::from("dede"), true);
+    println!("{}", kumpulan_umur.0);
+    println!("{}", kumpulan_umur.1);
+    println!("{}", kumpulan_umur.2);
+    println!("{}", kumpulan_umur.3);
+    println!("{}", kumpulan_umur.4);
+}
+
+//method
+impl UserStruct {
+    fn helo_user(&self, nama: &str) {
+        // jika helo_user(self, nama: &str) mka akan di transfer ownersift nya
+        println!("hallo {} nama saya {}", nama, self.nama_belakang) //hallo badri nama saya dirgantara
+    }
+}
+
+//untuk memabggil method yang sudah di buat kita bisa gunakan tanda titik di ikuti dnegan nama method oada instance yang sudah kita buat
+#[test]
+fn test_method() {
+    let users: UserStruct = UserStruct {
+        nama_depan: String::from("adrian"),
+        nama_belakang: String::from("dirgantara"),
+        nama_lengkap: String::from("adrian dirgantara"),
+        umur: 10,
+    };
+    users.helo_user("badri");
+    //jika helo_user(self, nama: &str) saja maka akan di transfer ownershife nya dan tidak bisa di gunakan di bawah
+    println!("{}", users.nama_belakang)
+}
+
+//associated function
+// perbedaan method dengan associated function adalah ada &self\
+struct UserData(String, i16);
+impl UserData {
+    fn new(nama: String, kelas: i16) -> Self {
+        Self(nama, kelas)
+    }
+}
+#[test]
+fn test_method_new() {
+    let users: UserData = UserData::new(String::from("dede"), 9);
+    println!("{}", users.0);
+    println!("{}", users.1)
+}
+
+// enum
+// enum merupakan type data yang di buat untuk mengumpulkan beberapa kemungkinan value
+// contoh misalkita membuat beberapa tipe data LEVEL dimana ada beberapa kemungkinan value
+// misal REGULAR, PREMIUM, Platinum. maka kita bisa gunakan tipe data enum untuk menampung data jenis ini
+// di dalam enum kita tentukan kemungkinan value yang di perbolehkan
+//mirop tyoe di typescript
+enum Level {
+    MINOR,
+    MEDIUM,
+    MAJOR,
+}
+#[test]
+fn tes_enum() {
+    let _enums: Level = Level::MINOR;
+}
+
+// menggunakan enum
+enum Payment {
+    //card number
+    CreditCard(String),
+    //bank name, account number
+    BankTransfer(String, String),
+    //ewallet name ewallet number
+    Ewallet(String, String),
+}
+// destructuring enum
+impl Payment {
+    fn pay(&self, anmoun: u32) {
+        match self {
+            Payment::CreditCard(number) => {
+                println!("pay with Credit card {} anmoun {}", number, anmoun);
+            }
+            Payment::BankTransfer(bank, number) => {
+                println!(
+                    "pay with bank trnasfer {} {} anmoun {}",
+                    bank, number, anmoun
+                )
+            }
+            Payment::Ewallet(pay, phone) => {
+                println!("pay with ewalet {} {} anmoun {}", pay, phone, anmoun)
+            }
+        }
+    }
+}
+#[test]
+fn tes_enum_try() {
+    let _credit: Payment = Payment::CreditCard(String::from("423049844"));
+    _credit.pay(100000);
+    let _bank_transfer: Payment =
+        Payment::BankTransfer(String::from("BCA"), String::from("324005833"));
+    _bank_transfer.pay(200000);
+    let _ewallet: Payment = Payment::Ewallet(String::from("DANA"), String::from("08588395820"));
+    _ewallet.pay(300000);
+}
+
+// mendapatkan ebyn
+#[test]
+fn penggunaan_enum_dengan_match() {
+    let level: Level = Level::MAJOR;
+    match level {
+        Level::MINOR => {
+            println!("Pengerjaan 1 sampai 3 hari")
+        }
+        Level::MEDIUM => {
+            println!("Pengerjaan 1 sampai 4 hari")
+        }
+        Level::MAJOR => {
+            println!("Pengerjaan 1 sampai 5 hari")
+        }
+    }
+}
+
+//tes patren matching
+#[test]
+fn tes_patren_matching() {
+    let nama = "dede";
+    match nama {
+        "dede" => {
+            println!("halo dede")
+        }
+        "dirga" => {
+            println!("halo dirga");
+        }
+        yang_lain => {
+            println!("ini yang lain {}", yang_lain)
+        }
+    }
 }
