@@ -1,6 +1,44 @@
-use core::num;
+pub mod model {
 
+   pub struct Siswa {
+        pub nama_depan: String,
+        pub nama_belakang: String,
+        pub nama_lengkap: String,
+        pub kelas: u8,
+    }
+
+     impl Siswa {
+        pub fn siswa_sekolah(&self, nama: &str) {
+            println!("nama saya {} {}", self.nama_depan, nama)
+        }
+    }
+}
+use model::Siswa; //use ada lah import jika di js
+
+
+mod seccond;
+mod first;
+mod third;
+
+use seccond::say_hello;
+use first::say_hello as say_hello_first;
+use third::say_hello as say_hello_third;
+
+#[test]
+fn tes_modules() {
+    say_hello();
+    say_hello_first()
+}
 fn main() {
+    //memanggil modul
+    let soswa = Siswa {
+        nama_depan: String::from("adrian"),
+        nama_belakang: String::from("dirgantara"),
+        nama_lengkap: String::from("adrian dirgantara"),
+        kelas: 10
+    };
+ 
+    soswa.siswa_sekolah("Badri");
     // print!("Hello, world!");
     // println!("badriana")
 }
@@ -478,9 +516,9 @@ fn range() {
     }
 }
 
-fn say_hello() {
-    println!("hallo badriana");
-}
+// fn say_hello() {
+//     println!("hallo badriana");
+// }
 #[test]
 fn panggil_say_hello() {
     say_hello();
@@ -829,3 +867,182 @@ fn tes_patren_matching() {
         }
     }
 }
+#[test]
+fn multiple_tes_patren_matching() {
+    let buah = "anggur";
+    match buah {
+        "jeruk" => {
+            println!("ini buah jeruk")
+        }
+        "tomat" | "terong" => {
+            println!("sayur")
+        }
+        "anggur" | "cabe" | "bawang" => {
+            println!("sambelen")
+        }
+        other => {
+            println!("ini karbo {}", other)
+        }
+    }
+}
+
+#[test]
+fn match_expresion() {
+    let values = 2;
+    let result = match values {
+        0 => "nol",
+        1 => "satu",
+        2 => "dua",
+        3 => "tiga",
+        _ => "invalid",
+    };
+    println!("{}", result)
+}
+//      parameter berupa number. tapi nilai kembalian nya harus sama dengan type kembalian
+// mengembalikan dungsi harus memiliki simbol -> di akhir () parameter  fungsi
+fn coba_matching(error: i16) -> &'static str {
+    match error {
+        200 => "Bergasil mengambil data",
+        201 => "Berhasil menambah data",
+        400 => "Kesalahan user",
+        500 => "Server Bermasalah",
+        _ => "Invalid Type error",
+    }
+}
+enum Method {
+    GET,
+    POS,
+    UPDATED,
+    PUT,
+    DELETE,
+}
+fn coba_lagi_matching(method: Method) -> String {
+    match method {
+        Method::GET => String::from("GET ADTA"),
+        Method::POS => String::from("CREATED DATA"),
+        Method::UPDATED => String::from("UPDATED DATA"),
+        Method::PUT => String::from("PUT DATA"),
+        Method::DELETE => String::from("DELETE DATA"),
+    }
+}
+
+#[test]
+fn coba_fungsi_matching() {
+    let coba_matching = coba_matching(200);
+    println!("{}", coba_matching);
+
+    let method = coba_lagi_matching(Method::GET);
+    println!("method Data {:?}", method)
+}
+
+type Number = i32;
+type TextStatis = &'static str;
+
+struct Murid {
+    nama: TextStatis,
+    kelas: Number,
+}
+#[test]
+fn tes_type() {
+    let murids = Murid {
+        nama: "dede",
+        kelas: 10,
+    };
+    println!("ini mirid {:?}", murids.nama);
+    println!("ini mirid {:?}", murids.kelas);
+}
+
+
+//trait adalah definisi fungsionalitas untuk tipe data lain
+//biasanya trait digunakan untuk dasar dari implementasi beberapa tipe data
+//di beberapa bahasa pemograman lain seperti java dan go trait mirip seperti interface
+//trait berisi definisi method tanpa implementasi konkrit
+
+trait CanSayHello{
+    fn hello(&self) -> String {
+        return String::from("hallo sayang");
+    }
+    fn say_hello(&self) -> String;
+    fn say_hello_to(&self, name: &str) -> String;
+}
+//trait bisa di gunakan sebagai tipe data, namun tetap perlu ada implementasi konkret nya, misal menggunakan struct atau enum
+//untuk implementasinya di bawah
+
+impl  CanSayHello for  UserStruct {
+    
+    fn say_hello(&self) -> String {
+        format!("hello, my name is {}", self.nama_lengkap)
+    }
+    fn say_hello_to(&self, name: &str) -> String {
+        format!("hello {} nama saya {}", name, self.nama_lengkap)
+    }
+}
+//salahsatu keuntungan rrait adalah kita bisa gunakan trait sebahao parameter
+//kita bisa gunakan value apapun yang merupakan implementasi dari trai tsb sebagai value parameter
+fn say_hello_trait(user_struct: &impl CanSayHello) {
+    println!("{}", user_struct.say_hello_to("meki"))
+}
+
+//multiple trait
+trait CanSayGoodBy {
+    fn good_by(&self) -> String;
+    fn good_by_to(&self, nama: &str) -> String;
+}
+impl CanSayGoodBy for UserStruct {
+    fn good_by(&self) -> String {
+        format!("good by {}", self.nama_lengkap)
+    }
+    fn good_by_to(&self, nama: &str) -> String {
+        format!("selamat jalan {} hati hati di jalan {}", nama, self.nama_depan)
+    }
+    
+}
+//multiple parameter trait
+fn hello_and_goodbay(value: &(impl CanSayHello + CanSayGoodBy)){
+    println!("{}", value.say_hello());
+    println!("{}", value.good_by());
+}
+
+#[test]
+fn tes_trait() {
+    let users: UserStruct = UserStruct {
+        nama_depan: String::from("adrian"),
+        nama_belakang: String::from("dirgantara"),
+        nama_lengkap:String::from("adrian dirgantara"),
+        umur: 23,
+    };
+    // println!("{:?}", users.say_hello());
+    // println!("{:?}", users.say_hello_to("dede"));
+    println!("{:?}", users.hello());
+    say_hello_trait(&users);
+    println!("{:?}", users.good_by());
+    println!("{:?}", users.good_by_to("dede"));
+
+    // println!("{:?}",hello_and_goodbay())
+    hello_and_goodbay(&users)
+}
+
+//mengembalilkan return value 
+struct SimpleUser {
+    name:String
+}
+impl CanSayGoodBy for SimpleUser {
+    fn good_by(&self) -> String {
+        format!("hallo sayang {}", self.name)
+    }
+    fn good_by_to(&self, nama: &str) -> String {
+        format!("hallo {} anjing {}", nama, self.name)
+    }
+}
+fn create_user(name: String) -> impl CanSayGoodBy {
+    SimpleUser {name}
+}
+#[test]
+fn tes_impl_trait() {
+    let users = create_user(String::from("dede"));
+    println!("{}",  users.good_by())
+}
+
+
+
+//Generic
