@@ -1,13 +1,13 @@
 pub mod model {
 
-   pub struct Siswa {
+    pub struct Siswa {
         pub nama_depan: String,
         pub nama_belakang: String,
         pub nama_lengkap: String,
         pub kelas: u8,
     }
 
-     impl Siswa {
+    impl Siswa {
         pub fn siswa_sekolah(&self, nama: &str) {
             println!("nama saya {} {}", self.nama_depan, nama)
         }
@@ -15,13 +15,12 @@ pub mod model {
 }
 use model::Siswa; //use ada lah import jika di js
 
-
-mod seccond;
 mod first;
+mod seccond;
 mod third;
 
-use seccond::say_hello;
 use first::say_hello as say_hello_first;
+use seccond::say_hello;
 use third::say_hello as say_hello_third;
 
 #[test]
@@ -35,9 +34,9 @@ fn main() {
         nama_depan: String::from("adrian"),
         nama_belakang: String::from("dirgantara"),
         nama_lengkap: String::from("adrian dirgantara"),
-        kelas: 10
+        kelas: 10,
     };
- 
+
     soswa.siswa_sekolah("Badri");
     // print!("Hello, world!");
     // println!("badriana")
@@ -952,13 +951,12 @@ fn tes_type() {
     println!("ini mirid {:?}", murids.kelas);
 }
 
-
 //trait adalah definisi fungsionalitas untuk tipe data lain
 //biasanya trait digunakan untuk dasar dari implementasi beberapa tipe data
 //di beberapa bahasa pemograman lain seperti java dan go trait mirip seperti interface
 //trait berisi definisi method tanpa implementasi konkrit
 
-trait CanSayHello{
+trait CanSayHello {
     fn hello(&self) -> String {
         return String::from("hallo sayang");
     }
@@ -968,8 +966,7 @@ trait CanSayHello{
 //trait bisa di gunakan sebagai tipe data, namun tetap perlu ada implementasi konkret nya, misal menggunakan struct atau enum
 //untuk implementasinya di bawah
 
-impl  CanSayHello for  UserStruct {
-    
+impl CanSayHello for UserStruct {
     fn say_hello(&self) -> String {
         format!("hello, my name is {}", self.nama_lengkap)
     }
@@ -993,12 +990,14 @@ impl CanSayGoodBy for UserStruct {
         format!("good by {}", self.nama_lengkap)
     }
     fn good_by_to(&self, nama: &str) -> String {
-        format!("selamat jalan {} hati hati di jalan {}", nama, self.nama_depan)
+        format!(
+            "selamat jalan {} hati hati di jalan {}",
+            nama, self.nama_depan
+        )
     }
-    
 }
 //multiple parameter trait
-fn hello_and_goodbay(value: &(impl CanSayHello + CanSayGoodBy)){
+fn hello_and_goodbay(value: &(impl CanSayHello + CanSayGoodBy)) {
     println!("{}", value.say_hello());
     println!("{}", value.good_by());
 }
@@ -1008,7 +1007,7 @@ fn tes_trait() {
     let users: UserStruct = UserStruct {
         nama_depan: String::from("adrian"),
         nama_belakang: String::from("dirgantara"),
-        nama_lengkap:String::from("adrian dirgantara"),
+        nama_lengkap: String::from("adrian dirgantara"),
         umur: 23,
     };
     // println!("{:?}", users.say_hello());
@@ -1022,9 +1021,9 @@ fn tes_trait() {
     hello_and_goodbay(&users)
 }
 
-//mengembalilkan return value 
+//mengembalilkan return value
 struct SimpleUser {
-    name:String
+    name: String,
 }
 impl CanSayGoodBy for SimpleUser {
     fn good_by(&self) -> String {
@@ -1035,14 +1034,166 @@ impl CanSayGoodBy for SimpleUser {
     }
 }
 fn create_user(name: String) -> impl CanSayGoodBy {
-    SimpleUser {name}
+    SimpleUser { name }
 }
 #[test]
 fn tes_impl_trait() {
     let users = create_user(String::from("dede"));
-    println!("{}",  users.good_by())
+    println!("{}", users.good_by())
+}
+
+//Generic
+//generic merupalkan fitur dimana kita bisa membuat function, struct, enum, method dan trait yang tipe datanya bisa di ubah ketika di gunakan
+//fitur ini sangat berguna ketika memang kita ingin membuat sebuah code general utntuk berbagai tyoe data sehingga perlu menentukan awal tupe data yang ingin kita gunakan
+
+//generic di struct
+struct Point<T> {
+    x: T,
+    y: T,
+}
+#[test]   
+fn tes_generic_struct() {
+    let integer = Point::<u8> { x: 5, y: 5 };
+    let str = Point::<&str> {
+        x: "dede",
+        y: "dirga",
+    };
+    let string = Point::<String> {
+        x: String::from("dede"), 
+        y: String::from("dirga"),
+    };
+    let float: Point<f64> = Point::<f64> { x: 10.0, y: 20.4 };
+
+    println!("{} {}", integer.x, integer.y);
+    println!("{} {}", str.x, str.y);
+    println!("{} {}", string.x, string.y);
+    println!("{} {}", float.x, float.y);
+}
+
+//generic di enum
+enum Values<T> {
+    NONE,
+    VALUES(T)
+}
+#[test]
+fn test_generic_enum() {
+    let values = Values::<u8> ::VALUES(100);
+    let none  = Values::<u8> ::NONE;
+    match none {
+        Values::NONE => {
+            println!("NONE")
+        }
+        Values::VALUES(values) => {
+            println!("Values")
+        }
+    }
+}
+
+//generic type bound
+//generic ini bisa di gunakan untuk membatasi type apa saja yang boleh kita gunakan
+//caranya kita bisa gunakan : titik dua di ikuti dengan trait nya
+struct Hi<T: CanSayGoodBy> {
+    values: T
+}
+#[test]
+fn tes_generic_struct_with_trait() {
+    let hi= Hi::<SimpleUser> {
+        values: SimpleUser {
+            name: String::from("dede"),
+        },
+    };
+    println!("{}", hi.values.name )
+}
+
+//generic function
+//ketika membuat generic function kita bisa tambahkan tyoe data generic setelah nama function
+fn min<T: PartialOrd>(value1: T, value2: T) -> T {
+    if value1 < value2 {
+        value1
+    } else {
+        value2
+    }
+}
+//generic function
+#[test]
+fn generic_function() {
+    let min = min(10, 20);
+    println!("{}", min)
+}
+
+//default generic type
+struct Points<T = u32> {
+    x:T,
+    y:T,
+}
+#[test]
+fn generic_default() {
+    //default 
+    let point = Points {x: 10, y:20};
+    println!("{} {}", point.x, point.y);
+    //tidak
+    let point = Points::<f64>  {x: 10.0, y:10.5};
+    println!("{} {}", point.x, point.y);
+    
+    let point  = Points::<i16> {x:-10, y:-20};
+    println!("{} {}", point.x, point.y);
+    
+}
+
+//overloadable operator
+//sebelumnya kita pernah belajar operator matematuka untuk tipe data number
+//apakah type data selain number mendukung operator matematika seperti + - dan yang lainnya?
+// secara default tidak, namun rust memiliki fitur dimana kita bisa mengimplementasikan operator fitur di mana kita bisa menggunakan operatior matematika
+//semua operator di representasikan dalam trait yang bisa kita implementasikan
+//semua trait nya berada di modul create core::ops
+use core::ops::Add;
+struct Apple{
+    quantiti: i32
+}
+impl Add for Apple {
+    type Output = Apple;
+    fn add(self, rhs: Self) -> Self::Output {
+        Apple {
+            quantiti: self.quantiti + rhs.quantiti
+        }
+    }
+}
+#[test]
+fn tes_adds() {
+    let aple1 = Apple {quantiti : 10};
+    let aple2 = Apple {quantiti : 20};
+    let qty = aple1 + aple2;
+    println!("{:?}", qty.quantiti)
+}
+//selain operator matematika di rust juga bisa di gunakan untuk membuatan operator pembadingan menggunakan module create core::cmp
+use core::cmp;
+
+impl PartialEq for Apple {
+    fn eq(&self, other: &Self) -> bool {
+        self.quantiti == other.quantiti
+    }
+}
+impl PartialOrd for Apple {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.quantiti.partial_cmp(&other.quantiti)
+    }
+}
+
+#[test]
+fn tes_compare_eq() {
+    let aple1 = Apple {quantiti: 10};
+    let aple2 = Apple {quantiti: 20};
+    println!("{}", aple1 == aple2);
+    println!("{}", aple1 > aple2);
+    println!("{}", aple1 < aple2);
 }
 
 
-
-//Generic
+//method manipulasi string
+#[test]
+fn manipulasi_string() {
+    let s = String::from("badriana adrian dirgantara");
+    println!("{}", s.to_lowercase());
+    println!("{}", s.to_uppercase());
+    
+}
